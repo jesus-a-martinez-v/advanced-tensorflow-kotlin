@@ -40,21 +40,6 @@ class GraphBuilder(private val graph: Graph) {
                 .output(0)
     }
 
-    fun <T> constant(name: String, value: Any, type: Class<T>): Output<T>? {
-        return try {
-            val tensor: Tensor<T> = Tensor.create(value, type)
-
-            graph
-                    .opBuilder("Const", name)
-                    .setAttr("dtype", DataType.fromClass(type))
-                    .setAttr("value", tensor)
-                    .build()
-                    .output(0)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
     fun constant(name: String, value: ByteArray): Output<String>? {
         return constant(name, value, String::class.java)
     }
@@ -69,6 +54,21 @@ class GraphBuilder(private val graph: Graph) {
 
     fun constant(name: String, value: Float): Output<Float>? {
         return constant(name, value, Float::class.java)
+    }
+
+    private fun <T> constant(name: String, value: Any, type: Class<T>): Output<T>? {
+        return try {
+            val tensor: Tensor<T> = Tensor.create(value, type)
+
+            graph
+                    .opBuilder("Const", name)
+                    .setAttr("dtype", DataType.fromClass(type))
+                    .setAttr("value", tensor)
+                    .build()
+                    .output(0)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun <T> binaryOp(type: String, firstInput: Output<T>, secondOutput: Output<T>): Output<T> {
